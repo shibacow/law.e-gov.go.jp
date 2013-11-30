@@ -13,6 +13,23 @@ law.e-gov.go.jp
 
 もうちょっといい感じにしてくれる方がいれば、ぜひご協力下さい。
 
+
+Install
+======
+bundlerを使って、インストールを楽にする。
+
+bunderを導入したあと
+
+   $bundle install --path vendor/bundle
+
+で必要なデータが入ります。
+
+  $bundle exec ruby download data2
+
+でデータのダウンロードを行います。
+最初は、法令名を、ファイ名としておりましたが、それだと、unixなどで、ファイル名が長過ぎると警告が出たのでhash化してファイル名を短くしました。
+また、downloadedファイルには、タブ区切りで、hash化した法令名、法令名、事例カテゴリの順にデータが入ってます。
+
 Licence
 =================
 
