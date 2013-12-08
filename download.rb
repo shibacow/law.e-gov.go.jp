@@ -3,9 +3,10 @@ require 'awesome_print'
 require 'digest/sha2'
 require 'csv'
 require 'pp'
+require 'trollop'
 
 class Download
-  def initialize
+  def initialize(opts)
     base_dir = ARGV[0] || File.expand_path("../data", __FILE__)
     @html_dir = File.join(base_dir, "html")
     @text_dir = File.join(base_dir, "text")
@@ -14,6 +15,7 @@ class Download
     @downloaded_files = File.join(base_dir, "downloaded")
     FileUtils.touch(@downloaded_files)
     @categorydict=self.generate_category
+    @opts=opts
   end
   def generate_category
     categorydict=Hash.new
@@ -70,9 +72,18 @@ class Download
     digest=self.shadigest(title)
     #ap cat,digest,title
     p "cat=#{cat} digest=#{digest} title=#{title}"
-    File.write(File.join(@html_dir, "#{digest}.html"), html)
-    File.write(File.join(@text_dir, "#{digest}.txt"),  text)
-    open(@downloaded_files, 'a') { |f| f.puts digest+"\t"+link+"\t"+ cat}
+    filename=nil
+    msg=nil
+    if @opts[:hash] then
+      filename=digest
+      msg="#{digest}\t#{link}\t#{cat}"
+    else
+      filename=title
+      msg="#{title}\t#{link}\t#{cat}"
+    end
+    File.write(File.join(@html_dir, "#{filename}.html"), html)
+    File.write(File.join(@text_dir, "#{filename}.txt"),  text)
+    open(@downloaded_files, 'a') { |f| f.puts msg}
   end
   def read_laws(cat_button,cat,index_page,agent)
     cat_button.each do |button|
@@ -92,5 +103,10 @@ class Download
     end
   end
 end
-down = Download.new
-down.push_buttons
+if __FILE__ == $0
+  opts = Trollop::options do
+    opt :hash,'Use Hashed dir mode'
+  end
+  down = Download.new(opts)
+  down.push_buttons
+end
